@@ -32,7 +32,18 @@ async function init() {
         const response = await fetch('psix.json');
         const allData = await response.json();
         
-        let subjectQuestions = allData.filter(q => q.Fan_nomi && q.Fan_nomi.trim() === currentSubject);
+        let subjectQuestions = allData.filter(q => {
+            if (!q.Fan_nomi) return false;
+            let normalizedDataFan = q.Fan_nomi.trim().toLowerCase();
+            let normalizedCurrentSubject = currentSubject.trim().toLowerCase();
+            
+            // Handle the specific typo "Milliy ttarbiya asoslari" in data
+            if (normalizedCurrentSubject === "milliy tarbiya asoslari") {
+                return normalizedDataFan === "milliy tarbiya asoslari" || normalizedDataFan === "milliy ttarbiya asoslari";
+            }
+            
+            return normalizedDataFan === normalizedCurrentSubject;
+        });
         
         if (subjectQuestions.length === 0) {
             alert('Bu fan bo\'yicha savollar topilmadi!');
