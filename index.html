@@ -109,12 +109,7 @@
             { name: "Deviant xulq atvor", count: 150 }
         ];
 
-        const yakuniySubjects = [
-            { name: "Yakuniy Test (Barchasi)", count: 901, file: "yakuniy.json" },
-            { name: "Yunagogika fani", count: 99, file: "yakuniy.json" },
-            { name: "Psixologik xizmat asoslari", count: 115, file: "yakuniy.json" },
-            { name: "Qiyosiy pedagogika fani", count: 100, file: "yakuniy.json" }
-        ];
+        const yakuniySubjects = []; // Dynamic now
 
         // Theme Logic
         function toggleTheme() {
@@ -135,17 +130,18 @@
         document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
 
-        function showCategory(type) {
+        async function showCategory(type) {
             currentCategory = type;
             document.getElementById('category-view').style.display = 'none';
             document.getElementById('subject-view').style.display = 'block';
             
             const container = document.getElementById('subjects-container');
             const title = document.getElementById('category-title');
-            container.innerHTML = '';
+            container.innerHTML = '<div class="loading">Yuklanmoqda...</div>';
 
             if (type === 'psix') {
                 title.innerText = 'Psixologiya Fanlari';
+                container.innerHTML = '';
                 psixSubjects.forEach(s => {
                     container.innerHTML += `
                         <div class="subject-card" onclick="selectSubject('${s.name}', 'psix.json')">
@@ -156,14 +152,37 @@
                 });
             } else {
                 title.innerText = 'Yakuniy Testlar';
-                yakuniySubjects.forEach(s => {
-                    container.innerHTML += `
-                        <div class="subject-card yakuniy-card" onclick="selectSubject('${s.name}', '${s.file}')">
-                            <h3>${s.name}</h3>
-                            <div class="meta">${s.count} savol</div>
+                try {
+                    const response = await fetch('yakuniy.json');
+                    const data = await response.json();
+                    
+                    // Group by Fan_nomi
+                    const subjectsMap = {};
+                    data.forEach(q => {
+                        const name = q.Fan_nomi || "Umumiy Savollar";
+                        subjectsMap[name] = (subjectsMap[name] || 0) + 1;
+                    });
+
+                    container.innerHTML = `
+                        <div class="subject-card yakuniy-card" onclick="selectSubject('Yakuniy Test (Barchasi)', 'yakuniy.json')">
+                            <h3>Barchasi (901 savol)</h3>
+                            <div class="meta">Barcha savollar to'plami</div>
                         </div>
                     `;
-                });
+
+                    Object.keys(subjectsMap).forEach(name => {
+                        if (name !== "Umumiy Savollar" && name.trim() !== "") {
+                            container.innerHTML += `
+                                <div class="subject-card yakuniy-card" onclick="selectSubject('${name}', 'yakuniy.json')">
+                                    <h3>${name}</h3>
+                                    <div class="meta">${subjectsMap[name]} savol</div>
+                                </div>
+                            `;
+                        }
+                    });
+                } catch (e) {
+                    container.innerHTML = '<div class="error">Ma\'lumotlarni yuklashda xatolik yuz berdi.</div>';
+                }
             }
         }
 
