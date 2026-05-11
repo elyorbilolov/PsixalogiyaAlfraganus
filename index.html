@@ -58,29 +58,10 @@
                 <button class="back-btn" onclick="backToSubjects()">← Orqaga</button>
                 <h2 id="selected-subject-title"></h2>
             </div>
-            <p>Tayyorgarlik darajasini tanlang (har birida 50 ta savol):</p>
+            <p id="level-desc"></p>
             
-            <div class="subjects-grid">
-                <div class="subject-card" onclick="startQuiz(1)">
-                    <h3>1-daraja</h3>
-                    <div class="meta">1 - 30 savollar</div>
-                </div>
-                <div class="subject-card" onclick="startQuiz(2)">
-                    <h3>2-daraja</h3>
-                    <div class="meta">31 - 60 savollar</div>
-                </div>
-                <div class="subject-card" onclick="startQuiz(3)">
-                    <h3>3-daraja</h3>
-                    <div class="meta">61 - 90 savollar</div>
-                </div>
-                <div class="subject-card" onclick="startQuiz(4)">
-                    <h3>4-daraja</h3>
-                    <div class="meta">91 - 120 savollar</div>
-                </div>
-                <div class="subject-card" onclick="startQuiz(5)">
-                    <h3>5-daraja</h3>
-                    <div class="meta">121 - 150 savollar</div>
-                </div>
+            <div class="subjects-grid" id="levels-container">
+                <!-- Levels will be injected here -->
             </div>
         </div>
 
@@ -130,7 +111,7 @@
         document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
 
-        async function showCategory(type) {
+        function showCategory(type) {
             currentCategory = type;
             document.getElementById('category-view').style.display = 'none';
             document.getElementById('subject-view').style.display = 'block';
@@ -144,7 +125,7 @@
                 container.innerHTML = '';
                 psixSubjects.forEach(s => {
                     container.innerHTML += `
-                        <div class="subject-card" onclick="selectSubject('${s.name}', 'psix.json')">
+                        <div class="subject-card" onclick="selectSubject('${s.name}', 'psix.json', ${s.count})">
                             <h3>${s.name}</h3>
                             <div class="meta">${s.count} savol</div>
                         </div>
@@ -152,54 +133,70 @@
                 });
             } else {
                 title.innerText = 'Yakuniy Testlar';
-                try {
-                    const response = await fetch('yakuniy.json');
-                    const data = await response.json();
-                    container.innerHTML = ''; // Clear loading text
-                    
-                    // Group by Fan_nomi
-                    const subjectsMap = {};
-                    data.forEach(q => {
-                        const name = q.Fan_nomi || "";
-                        if (name.trim() !== "") {
-                            subjectsMap[name] = (subjectsMap[name] || 0) + 1;
-                        }
-                    });
+                fetch('yakuniy.json')
+                    .then(res => res.json())
+                    .then(data => {
+                        container.innerHTML = '';
+                        const subjectsMap = {};
+                        data.forEach(q => {
+                            const name = q.Fan_nomi || "";
+                            if (name.trim() !== "") {
+                                subjectsMap[name] = (subjectsMap[name] || 0) + 1;
+                            }
+                        });
 
-                    Object.keys(subjectsMap).forEach(name => {
-                        container.innerHTML += `
-                            <div class="subject-card yakuniy-card" onclick="selectSubject('${name}', 'yakuniy.json')">
-                                <h3>${name}</h3>
-                                <div class="meta">${subjectsMap[name]} savol</div>
-                            </div>
-                        `;
+                        Object.keys(subjectsMap).forEach(name => {
+                            container.innerHTML += `
+                                <div class="subject-card yakuniy-card" onclick="selectSubject('${name}', 'yakuniy.json', ${subjectsMap[name]})">
+                                    <h3>${name}</h3>
+                                    <div class="meta">${subjectsMap[name]} savol</div>
+                                </div>
+                            `;
+                        });
+                    })
+                    .catch(() => {
+                        container.innerHTML = '<div class="error">Xatolik yuz berdi.</div>';
                     });
-                } catch (e) {
-                    container.innerHTML = '<div class="error">Ma\'lumotlarni yuklashda xatolik yuz berdi.</div>';
-                }
             }
         }
 
-        function showCategories() {
-            document.getElementById('category-view').style.display = 'block';
-            document.getElementById('subject-view').style.display = 'none';
-            document.getElementById('level-view').style.display = 'none';
-            document.getElementById('scores-view').style.display = 'none';
-        }
-
-        function backToSubjects() {
-            document.getElementById('level-view').style.display = 'none';
-            document.getElementById('subject-view').style.display = 'block';
-        }
-
-        function selectSubject(subject, file = 'psix.json') {
+        function selectSubject(subject, file, totalCount) {
             currentSubject = subject;
             document.getElementById('subject-view').style.display = 'none';
             document.getElementById('level-view').style.display = 'block';
             document.getElementById('scores-view').style.display = 'none';
             document.getElementById('selected-subject-title').innerText = subject;
+            
             localStorage.setItem('selectedSubject', subject);
             localStorage.setItem('selectedFile', file);
+            localStorage.setItem('totalQuestions', totalCount);
+            
+            generateLevels(totalCount);
+        }
+
+        function generateLevels(total) {
+            const container = document.getElementById('levels-container');
+            const desc = document.getElementById('level-desc');
+            container.innerHTML = '';
+            
+            const levelsCount = 5;
+            const perLevel = Math.ceil(total / levelsCount);
+            
+            desc.innerText = `Jami ${total} ta savol mavjud. 5 ta bosqichga bo'lingan (har birida ~${perLevel} tadan).`;
+
+            for (let i = 1; i <= levelsCount; i++) {
+                const start = (i - 1) * perLevel + 1;
+                let end = i * perLevel;
+                if (end > total) end = total;
+                if (start > total) break;
+
+                container.innerHTML += `
+                    <div class="subject-card" onclick="startQuiz(${i})">
+                        <h3>${i}-daraja</h3>
+                        <div class="meta">${start} - ${end} savollar</div>
+                    </div>
+                `;
+            }
         }
 
         function showSubjects() {

@@ -65,7 +65,8 @@ async function init() {
 
         // Fallback to index-based slicing if "Daraja" field is not used or empty for this level
         if (filteredQuestions.length === 0) {
-            const itemsPerLevel = currentSubject === "Yakuniy Test" ? 180 : 30;
+            const total = parseInt(localStorage.getItem('totalQuestions')) || 150;
+            const itemsPerLevel = Math.ceil(total / 5);
             const startIndex = (currentLevel - 1) * itemsPerLevel;
             const endIndex = startIndex + itemsPerLevel;
             filteredQuestions = subjectQuestions.slice(startIndex, endIndex);
