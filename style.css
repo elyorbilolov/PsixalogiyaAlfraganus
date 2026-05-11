@@ -424,26 +424,57 @@ h1 {
     }
 }
 
-/* Special styles for Yakuniy Test */
+/* Category and Subject Cards */
+.category-card {
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.category-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: var(--primary);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.icon-wrapper {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    color: white;
+    box-shadow: 0 5px 15px rgba(108, 92, 231, 0.2);
+}
+
+.yakuniy-main-card .icon-wrapper {
+    background: linear-gradient(135deg, #00b894, #00cec9);
+}
+
 .yakuniy-card {
-    background: linear-gradient(135deg, rgba(13, 148, 136, 0.1) 0%, rgba(45, 212, 191, 0.1) 100%);
-    border: 2px solid var(--primary) !important;
+    border-left: 5px solid #00b894 !important;
 }
 
 .badge {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: var(--primary);
+    top: 10px;
+    right: 10px;
+    background: #00b894;
     color: white;
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
-    box-shadow: 0 4px 10px rgba(13, 148, 136, 0.3);
-}
-
-[data-theme="dark"] .yakuniy-card {
-    background: linear-gradient(135deg, rgba(45, 212, 191, 0.05) 0%, rgba(13, 148, 136, 0.1) 100%);
 }

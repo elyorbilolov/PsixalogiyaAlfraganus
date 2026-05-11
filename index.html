@@ -21,48 +21,41 @@
     </div>
 
     <div class="container" id="app">
-        <!-- Subject Selection View -->
-        <div id="subject-view">
-            <h1>Psixologiya Fanlari</h1>
-            <p>Bilimingizni sinab ko'rish uchun fanni tanlang:</p>
-            
+        <!-- Category Selection View -->
+        <div id="category-view">
+            <h1>Psixologiya Quiz</h1>
+            <p>Davom etish uchun bo'limni tanlang:</p>
             <div class="subjects-grid">
-                <div class="subject-card yakuniy-card" onclick="selectSubject('Yakuniy Test', 'yakuniy.json')">
+                <div class="subject-card category-card" onclick="showCategory('psix')">
+                    <div class="icon-wrapper"><i class="fas fa-book-open"></i></div>
+                    <h3>Psixologiya Fanlari</h3>
+                    <div class="meta">6 ta fan mavjud</div>
+                </div>
+                <div class="subject-card category-card yakuniy-main-card" onclick="showCategory('yakuniy')">
                     <div class="badge">Yangi</div>
-                    <h3>Yakuniy Test (Barchasi)</h3>
-                    <div class="meta">901 savol</div>
+                    <div class="icon-wrapper"><i class="fas fa-graduation-cap"></i></div>
+                    <h3>Yakuniy Testlar</h3>
+                    <div class="meta">901 ta savol</div>
                 </div>
-                <div class="subject-card" onclick="selectSubject('Psixologik xizmat ko\'rsatish asoslari', 'psix.json')">
-                    <h3>Psixologik xizmat ko'rsatish asoslari</h3>
-                    <div class="meta">150 savol</div>
-                </div>
-                <div class="subject-card" onclick="selectSubject('Oila psixologiyasi', 'psix.json')">
-                    <h3>Oila psixologiyasi</h3>
-                    <div class="meta">150 savol</div>
-                </div>
-                <div class="subject-card" onclick="selectSubject('Kreativ pedagogika', 'psix.json')">
-                    <h3>Kreativ pedagogika</h3>
-                    <div class="meta">150 savol</div>
-                </div>
-                <div class="subject-card" onclick="selectSubject('Milliy tarbiya asoslari', 'psix.json')">
-                    <h3>Milliy tarbiya asoslari</h3>
-                    <div class="meta">150 savol</div>
-                </div>
-                <div class="subject-card" onclick="selectSubject('Pedagogika psixologiya', 'psix.json')">
-                    <h3>Pedagogika psixologiya</h3>
-                    <div class="meta">151 savol</div>
-                </div>
-                <div class="subject-card" onclick="selectSubject('Deviant xulq atvor', 'psix.json')">
-                    <h3>Deviant xulq atvor</h3>
-                    <div class="meta">150 savol</div>
-                </div>
+            </div>
+        </div>
+
+        <!-- Subject Selection View -->
+        <div id="subject-view" style="display: none;">
+            <div class="quiz-header">
+                <button class="back-btn" onclick="showCategories()">← Orqaga</button>
+                <h2 id="category-title">Fanlar</h2>
+            </div>
+            <p id="category-desc">Bilimingizni sinab ko'rish uchun fanni tanlang:</p>
+            <div class="subjects-grid" id="subjects-container">
+                <!-- Subjects will be injected here -->
             </div>
         </div>
 
         <!-- Level Selection View -->
         <div id="level-view" style="display: none;">
             <div class="quiz-header">
-                <button class="back-btn" onclick="showSubjects()">← Orqaga</button>
+                <button class="back-btn" onclick="backToSubjects()">← Orqaga</button>
                 <h2 id="selected-subject-title"></h2>
             </div>
             <p>Tayyorgarlik darajasini tanlang (har birida 50 ta savol):</p>
@@ -105,6 +98,23 @@
 
     <script>
         let currentSubject = '';
+        let currentCategory = '';
+
+        const psixSubjects = [
+            { name: "Psixologik xizmat ko'rsatish asoslari", count: 150 },
+            { name: "Oila psixologiyasi", count: 150 },
+            { name: "Kreativ pedagogika", count: 150 },
+            { name: "Milliy tarbiya asoslari", count: 150 },
+            { name: "Pedagogika psixologiya", count: 151 },
+            { name: "Deviant xulq atvor", count: 150 }
+        ];
+
+        const yakuniySubjects = [
+            { name: "Yakuniy Test (Barchasi)", count: 901, file: "yakuniy.json" },
+            { name: "Yunagogika fani", count: 99, file: "yakuniy.json" },
+            { name: "Psixologik xizmat asoslari", count: 115, file: "yakuniy.json" },
+            { name: "Qiyosiy pedagogika fani", count: 100, file: "yakuniy.json" }
+        ];
 
         // Theme Logic
         function toggleTheme() {
@@ -125,6 +135,50 @@
         document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
 
+        function showCategory(type) {
+            currentCategory = type;
+            document.getElementById('category-view').style.display = 'none';
+            document.getElementById('subject-view').style.display = 'block';
+            
+            const container = document.getElementById('subjects-container');
+            const title = document.getElementById('category-title');
+            container.innerHTML = '';
+
+            if (type === 'psix') {
+                title.innerText = 'Psixologiya Fanlari';
+                psixSubjects.forEach(s => {
+                    container.innerHTML += `
+                        <div class="subject-card" onclick="selectSubject('${s.name}', 'psix.json')">
+                            <h3>${s.name}</h3>
+                            <div class="meta">${s.count} savol</div>
+                        </div>
+                    `;
+                });
+            } else {
+                title.innerText = 'Yakuniy Testlar';
+                yakuniySubjects.forEach(s => {
+                    container.innerHTML += `
+                        <div class="subject-card yakuniy-card" onclick="selectSubject('${s.name}', '${s.file}')">
+                            <h3>${s.name}</h3>
+                            <div class="meta">${s.count} savol</div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function showCategories() {
+            document.getElementById('category-view').style.display = 'block';
+            document.getElementById('subject-view').style.display = 'none';
+            document.getElementById('level-view').style.display = 'none';
+            document.getElementById('scores-view').style.display = 'none';
+        }
+
+        function backToSubjects() {
+            document.getElementById('level-view').style.display = 'none';
+            document.getElementById('subject-view').style.display = 'block';
+        }
+
         function selectSubject(subject, file = 'psix.json') {
             currentSubject = subject;
             document.getElementById('subject-view').style.display = 'none';
@@ -136,23 +190,23 @@
         }
 
         function showSubjects() {
-            document.getElementById('subject-view').style.display = 'block';
-            document.getElementById('level-view').style.display = 'none';
-            document.getElementById('scores-view').style.display = 'none';
+            showCategory(currentCategory || 'psix');
         }
 
         function toggleHighScores() {
             const subjectView = document.getElementById('subject-view');
             const scoresView = document.getElementById('scores-view');
             const levelView = document.getElementById('level-view');
+            const categoryView = document.getElementById('category-view');
 
             if (scoresView.style.display === 'none') {
                 subjectView.style.display = 'none';
                 levelView.style.display = 'none';
+                categoryView.style.display = 'none';
                 scoresView.style.display = 'block';
                 displayScores();
             } else {
-                showSubjects();
+                showCategories();
             }
         }
 
