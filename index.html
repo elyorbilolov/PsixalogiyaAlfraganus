@@ -244,6 +244,18 @@
             }
         }
 
+        function showCategories() {
+            document.getElementById('category-view').style.display = 'block';
+            document.getElementById('subject-view').style.display = 'none';
+            document.getElementById('level-view').style.display = 'none';
+            document.getElementById('scores-view').style.display = 'none';
+        }
+
+        function backToSubjects() {
+            document.getElementById('level-view').style.display = 'none';
+            document.getElementById('subject-view').style.display = 'block';
+        }
+
         function showSubjects() {
             showCategory(currentCategory || 'psix');
         }
