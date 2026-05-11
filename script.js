@@ -60,14 +60,21 @@ async function init() {
         }
 
         // Try to filter by "Daraja" field first (e.g., "Daraja-1")
-        const levelTag = `Daraja-${currentLevel}`;
-        let filteredQuestions = subjectQuestions.filter(q => q.Daraja && q.Daraja === levelTag);
+        let filteredQuestions = subjectQuestions.filter(q => 
+            q.Daraja && (
+                q.Daraja === currentLevel || 
+                q.Daraja === `Daraja-${currentLevel}` || 
+                q.Daraja === `${currentLevel}-daraja` ||
+                q.Daraja === String(currentLevel)
+            )
+        );
 
         // Fallback to index-based slicing if "Daraja" field is not used or empty for this level
         if (filteredQuestions.length === 0) {
             const total = parseInt(localStorage.getItem('totalQuestions')) || 150;
             const itemsPerLevel = Math.ceil(total / 5);
-            const startIndex = (currentLevel - 1) * itemsPerLevel;
+            const levelNum = parseInt(currentLevel.replace(/\D/g, '')) || 1; // Extract number from "Daraja-1"
+            const startIndex = (levelNum - 1) * itemsPerLevel;
             const endIndex = startIndex + itemsPerLevel;
             filteredQuestions = subjectQuestions.slice(startIndex, endIndex);
         }

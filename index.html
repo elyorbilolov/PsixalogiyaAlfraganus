@@ -160,7 +160,7 @@
             }
         }
 
-        function selectSubject(subject, file, totalCount) {
+        async function selectSubject(subject, file, totalCount) {
             currentSubject = subject;
             document.getElementById('subject-view').style.display = 'none';
             document.getElementById('level-view').style.display = 'block';
@@ -170,19 +170,64 @@
             localStorage.setItem('selectedSubject', subject);
             localStorage.setItem('selectedFile', file);
             localStorage.setItem('totalQuestions', totalCount);
-            
-            generateLevels(totalCount);
+
+            const container = document.getElementById('levels-container');
+            container.innerHTML = '<div class="loading">Darajalar yuklanmoqda...</div>';
+
+            try {
+                const response = await fetch(file);
+                const data = await response.json();
+                
+                // Filter questions for this subject
+                const subjectQuestions = data.filter(q => {
+                    const fan = q.Fan_nomi || "Yakuniy Test"; // Default for psix.json if needed
+                    return fan === subject || subject === "Yakuniy Test (Barchasi)";
+                });
+
+                // Extract unique levels
+                const levelsMap = {};
+                subjectQuestions.forEach(q => {
+                    if (q.Daraja && q.Daraja.trim() !== "") {
+                        levelsMap[q.Daraja] = (levelsMap[q.Daraja] || 0) + 1;
+                    }
+                });
+
+                const levelNames = Object.keys(levelsMap).sort();
+
+                if (levelNames.length > 0) {
+                    generateDefinedLevels(levelNames, levelsMap);
+                } else {
+                    generateNumericLevels(totalCount);
+                }
+            } catch (e) {
+                generateNumericLevels(totalCount);
+            }
         }
 
-        function generateLevels(total) {
+        function generateDefinedLevels(names, map) {
+            const container = document.getElementById('levels-container');
+            const desc = document.getElementById('level-desc');
+            container.innerHTML = '';
+            desc.innerText = `Ushbu fan bo'yicha ${names.length} ta tayyor daraja aniqlandi.`;
+
+            names.forEach((name, index) => {
+                container.innerHTML += `
+                    <div class="subject-card" onclick="startQuiz('${name}')">
+                        <h3>${name}</h3>
+                        <div class="meta">${map[name]} ta savol</div>
+                    </div>
+                `;
+            });
+        }
+
+        function generateNumericLevels(total) {
             const container = document.getElementById('levels-container');
             const desc = document.getElementById('level-desc');
             container.innerHTML = '';
             
             const levelsCount = 5;
             const perLevel = Math.ceil(total / levelsCount);
-            
-            desc.innerText = `Jami ${total} ta savol mavjud. 5 ta bosqichga bo'lingan (har birida ~${perLevel} tadan).`;
+            desc.innerText = `Jami ${total} ta savol mavjud. Tizim avtomatik 5 ta bosqichga bo'ldi.`;
 
             for (let i = 1; i <= levelsCount; i++) {
                 const start = (i - 1) * perLevel + 1;
