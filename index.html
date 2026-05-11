@@ -155,6 +155,7 @@
                 try {
                     const response = await fetch('yakuniy.json');
                     const data = await response.json();
+                    container.innerHTML = ''; // Clear loading text
                     
                     // Group by Fan_nomi
                     const subjectsMap = {};
