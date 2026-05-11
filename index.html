@@ -27,27 +27,32 @@
             <p>Bilimingizni sinab ko'rish uchun fanni tanlang:</p>
             
             <div class="subjects-grid">
-                <div class="subject-card" onclick="selectSubject('Psixologik xizmat ko\'rsatish asoslari')">
+                <div class="subject-card yakuniy-card" onclick="selectSubject('Yakuniy Test', 'yakuniy.json')">
+                    <div class="badge">Yangi</div>
+                    <h3>Yakuniy Test (Barchasi)</h3>
+                    <div class="meta">901 savol</div>
+                </div>
+                <div class="subject-card" onclick="selectSubject('Psixologik xizmat ko\'rsatish asoslari', 'psix.json')">
                     <h3>Psixologik xizmat ko'rsatish asoslari</h3>
                     <div class="meta">150 savol</div>
                 </div>
-                <div class="subject-card" onclick="selectSubject('Oila psixologiyasi')">
+                <div class="subject-card" onclick="selectSubject('Oila psixologiyasi', 'psix.json')">
                     <h3>Oila psixologiyasi</h3>
                     <div class="meta">150 savol</div>
                 </div>
-                <div class="subject-card" onclick="selectSubject('Kreativ pedagogika')">
+                <div class="subject-card" onclick="selectSubject('Kreativ pedagogika', 'psix.json')">
                     <h3>Kreativ pedagogika</h3>
                     <div class="meta">150 savol</div>
                 </div>
-                <div class="subject-card" onclick="selectSubject('Milliy tarbiya asoslari')">
+                <div class="subject-card" onclick="selectSubject('Milliy tarbiya asoslari', 'psix.json')">
                     <h3>Milliy tarbiya asoslari</h3>
                     <div class="meta">150 savol</div>
                 </div>
-                <div class="subject-card" onclick="selectSubject('Pedagogika psixologiya')">
+                <div class="subject-card" onclick="selectSubject('Pedagogika psixologiya', 'psix.json')">
                     <h3>Pedagogika psixologiya</h3>
                     <div class="meta">151 savol</div>
                 </div>
-                <div class="subject-card" onclick="selectSubject('Deviant xulq atvor')">
+                <div class="subject-card" onclick="selectSubject('Deviant xulq atvor', 'psix.json')">
                     <h3>Deviant xulq atvor</h3>
                     <div class="meta">150 savol</div>
                 </div>
@@ -120,13 +125,14 @@
         document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
 
-        function selectSubject(subject) {
+        function selectSubject(subject, file = 'psix.json') {
             currentSubject = subject;
             document.getElementById('subject-view').style.display = 'none';
             document.getElementById('level-view').style.display = 'block';
             document.getElementById('scores-view').style.display = 'none';
             document.getElementById('selected-subject-title').innerText = subject;
             localStorage.setItem('selectedSubject', subject);
+            localStorage.setItem('selectedFile', file);
         }
 
         function showSubjects() {

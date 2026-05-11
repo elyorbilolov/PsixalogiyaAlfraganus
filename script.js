@@ -29,21 +29,29 @@ async function init() {
     subjectTitleElement.innerText = `${currentSubject} - ${currentLevel}-daraja`;
     
     try {
-        const response = await fetch('psix.json');
+        const fileName = localStorage.getItem('selectedFile') || 'psix.json';
+        const response = await fetch(fileName);
         const allData = await response.json();
         
-        let subjectQuestions = allData.filter(q => {
-            if (!q.Fan_nomi) return false;
-            let normalizedDataFan = q.Fan_nomi.trim().toLowerCase();
-            let normalizedCurrentSubject = currentSubject.trim().toLowerCase();
-            
-            // Handle the specific typo "Milliy ttarbiya asoslari" in data
-            if (normalizedCurrentSubject === "milliy tarbiya asoslari") {
-                return normalizedDataFan === "milliy tarbiya asoslari" || normalizedDataFan === "milliy ttarbiya asoslari";
-            }
-            
-            return normalizedDataFan === normalizedCurrentSubject;
-        });
+        let subjectQuestions = [];
+        
+        if (currentSubject === "Yakuniy Test") {
+            // For Yakuniy Test, we take all questions from the file
+            subjectQuestions = allData;
+        } else {
+            subjectQuestions = allData.filter(q => {
+                if (!q.Fan_nomi) return false;
+                let normalizedDataFan = q.Fan_nomi.trim().toLowerCase();
+                let normalizedCurrentSubject = currentSubject.trim().toLowerCase();
+                
+                // Handle the specific typo "Milliy ttarbiya asoslari" in data
+                if (normalizedCurrentSubject === "milliy tarbiya asoslari") {
+                    return normalizedDataFan === "milliy tarbiya asoslari" || normalizedDataFan === "milliy ttarbiya asoslari";
+                }
+                
+                return normalizedDataFan === normalizedCurrentSubject;
+            });
+        }
         
         if (subjectQuestions.length === 0) {
             alert('Bu fan bo\'yicha savollar topilmadi!');
@@ -57,7 +65,7 @@ async function init() {
 
         // Fallback to index-based slicing if "Daraja" field is not used or empty for this level
         if (filteredQuestions.length === 0) {
-            const itemsPerLevel = 30;
+            const itemsPerLevel = currentSubject === "Yakuniy Test" ? 180 : 30;
             const startIndex = (currentLevel - 1) * itemsPerLevel;
             const endIndex = startIndex + itemsPerLevel;
             filteredQuestions = subjectQuestions.slice(startIndex, endIndex);
@@ -124,11 +132,15 @@ function showQuestion() {
     questionText.innerText = `${currentQuestionIndex + 1}. ${text}`;
     
     const options = [
-        { text: questionData["Togri_javob"], isCorrect: true },
-        { text: questionData["Notogri_javob"], isCorrect: false },
-        { text: questionData["Notogri_javob.1"], isCorrect: false },
-        { text: questionData["Notogri_javob.2"], isCorrect: false }
+        { text: questionData["Togri_javob"], isCorrect: true }
     ];
+
+    // Collect all incorrect answers (handling both .1, .2 and 1, 2, 3 formats)
+    Object.keys(questionData).forEach(key => {
+        if (key.startsWith("Notogri_javob") && questionData[key]) {
+            options.push({ text: questionData[key], isCorrect: false });
+        }
+    });
 
     shuffleArray(options);
 
