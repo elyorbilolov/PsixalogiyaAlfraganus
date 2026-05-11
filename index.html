@@ -35,7 +35,7 @@
                     <div class="badge">Yangi</div>
                     <div class="icon-wrapper"><i class="fas fa-graduation-cap"></i></div>
                     <h3>Yakuniy Testlar</h3>
-                    <div class="meta">901 ta savol</div>
+                    <div class="meta">3 ta fan mavjud</div>
                 </div>
             </div>
         </div>
@@ -159,26 +159,19 @@
                     // Group by Fan_nomi
                     const subjectsMap = {};
                     data.forEach(q => {
-                        const name = q.Fan_nomi || "Umumiy Savollar";
-                        subjectsMap[name] = (subjectsMap[name] || 0) + 1;
+                        const name = q.Fan_nomi || "";
+                        if (name.trim() !== "") {
+                            subjectsMap[name] = (subjectsMap[name] || 0) + 1;
+                        }
                     });
 
-                    container.innerHTML = `
-                        <div class="subject-card yakuniy-card" onclick="selectSubject('Yakuniy Test (Barchasi)', 'yakuniy.json')">
-                            <h3>Barchasi (901 savol)</h3>
-                            <div class="meta">Barcha savollar to'plami</div>
-                        </div>
-                    `;
-
                     Object.keys(subjectsMap).forEach(name => {
-                        if (name !== "Umumiy Savollar" && name.trim() !== "") {
-                            container.innerHTML += `
-                                <div class="subject-card yakuniy-card" onclick="selectSubject('${name}', 'yakuniy.json')">
-                                    <h3>${name}</h3>
-                                    <div class="meta">${subjectsMap[name]} savol</div>
-                                </div>
-                            `;
-                        }
+                        container.innerHTML += `
+                            <div class="subject-card yakuniy-card" onclick="selectSubject('${name}', 'yakuniy.json')">
+                                <h3>${name}</h3>
+                                <div class="meta">${subjectsMap[name]} savol</div>
+                            </div>
+                        `;
                     });
                 } catch (e) {
                     container.innerHTML = '<div class="error">Ma\'lumotlarni yuklashda xatolik yuz berdi.</div>';
