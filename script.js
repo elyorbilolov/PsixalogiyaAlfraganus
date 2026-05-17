@@ -1,5 +1,5 @@
 let currentSubject = localStorage.getItem('selectedSubject');
-let currentLevel = parseInt(localStorage.getItem('selectedLevel')) || 1;
+let currentLevel = parseInt(String(localStorage.getItem('selectedLevel')).replace(/\D/g, '')) || 1;
 let questions = [];
 let currentQuestionIndex = 0;
 let score = 0;
@@ -73,7 +73,7 @@ async function init() {
         if (filteredQuestions.length === 0) {
             const total = parseInt(localStorage.getItem('totalQuestions')) || 150;
             const itemsPerLevel = Math.ceil(total / 5);
-            const levelNum = parseInt(currentLevel.replace(/\D/g, '')) || 1; // Extract number from "Daraja-1"
+            const levelNum = currentLevel; // Already a number
             const startIndex = (levelNum - 1) * itemsPerLevel;
             const endIndex = startIndex + itemsPerLevel;
             filteredQuestions = subjectQuestions.slice(startIndex, endIndex);
