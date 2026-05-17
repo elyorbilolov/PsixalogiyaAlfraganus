@@ -35,7 +35,7 @@
                     <div class="badge">Yangi</div>
                     <div class="icon-wrapper"><i class="fas fa-graduation-cap"></i></div>
                     <h3>Yakuniy Testlar</h3>
-                    <div class="meta">3 ta fan mavjud</div>
+                    <div class="meta" id="yakuniy-meta-count">Yuklanmoqda...</div>
                 </div>
             </div>
         </div>
@@ -110,6 +110,24 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
+
+        // Load Yakuniy subjects count dynamically
+        fetch('yakuniy.json')
+            .then(res => res.json())
+            .then(data => {
+                const subjectsMap = {};
+                data.forEach(q => {
+                    const name = q.Fan_nomi || "";
+                    if (name.trim() !== "") {
+                        subjectsMap[name] = true;
+                    }
+                });
+                const count = Object.keys(subjectsMap).length;
+                document.getElementById('yakuniy-meta-count').innerText = `${count} ta fan mavjud`;
+            })
+            .catch(() => {
+                document.getElementById('yakuniy-meta-count').innerText = '5 ta fan mavjud';
+            });
 
         function showCategory(type) {
             currentCategory = type;
